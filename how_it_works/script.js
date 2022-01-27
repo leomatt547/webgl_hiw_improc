@@ -16,17 +16,23 @@ function main() {
   ]);
 
   // look up where the vertex data needs to go.
-  var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+  var positionLocation = gl.getAttribLocation(program, "a_position");
+  var colorLocation = gl.getAttribLocation(program, "a_color");
 
   // lookup uniforms
   var matrixLocation = gl.getUniformLocation(program, "u_matrix");
 
-  // Create a buffer.
+  // Create a buffer for the positions.
   var positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
   // Set Geometry.
   setGeometry(gl);
+
+  // Create a buffer for the colors.
+  var colorBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+  // Set the colors.
+  setColors(gl);
 
   var translation = [200, 150];
   var angleInRadians = 0;
@@ -96,20 +102,41 @@ function main() {
     // Tell it to use our program (pair of shaders)
     gl.useProgram(program);
 
-    // Turn on the attribute
-    gl.enableVertexAttribArray(positionAttributeLocation);
+    // Turn on the position attribute
+    gl.enableVertexAttribArray(positionLocation);
 
     // Bind the position buffer.
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-    // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+    // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
     var size = 2; // 2 components per iteration
     var type = gl.FLOAT; // the data is 32bit floats
     var normalize = false; // don't normalize the data
     var stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
     var offset = 0; // start at the beginning of the buffer
     gl.vertexAttribPointer(
-      positionAttributeLocation,
+      positionLocation,
+      size,
+      type,
+      normalize,
+      stride,
+      offset
+    );
+
+    // Turn on the color attribute
+    gl.enableVertexAttribArray(colorLocation);
+
+    // Bind the color buffer.
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+
+    // Tell the color attribute how to get data out of colorBuffer (ARRAY_BUFFER)
+    var size = 4; // 4 components per iteration
+    var type = gl.FLOAT; // the data is 32bit floats
+    var normalize = false; // don't normalize the data
+    var stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
+    var offset = 0; // start at the beginning of the buffer
+    gl.vertexAttribPointer(
+      colorLocation,
       size,
       type,
       normalize,
@@ -129,18 +156,58 @@ function main() {
     // Draw the geometry.
     var primitiveType = gl.TRIANGLES;
     var offset = 0;
-    var count = 3;
+    var count = 6;
     gl.drawArrays(primitiveType, offset, count);
   }
 }
 
-// Fill the buffer with the values that define a triangle.
+// Fill the buffer with the values that define a rectangle.
 // Note, will put the values in whatever buffer is currently
 // bound to the ARRAY_BUFFER bind point
 function setGeometry(gl) {
   gl.bufferData(
     gl.ARRAY_BUFFER,
-    new Float32Array([0, -100, 150, 125, -175, 100]),
+    new Float32Array([
+      -150, -100, 150, -100, -150, 100, 150, -100, -150, 100, 150, 100,
+    ]),
+    gl.STATIC_DRAW
+  );
+}
+
+// Fill the buffer with colors for the 2 triangles
+// that make the rectangle.
+// Note, will put the values in whatever buffer is currently
+// bound to the ARRAY_BUFFER bind point
+function setColors(gl) {
+  // Make every vertex a different color.
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array([
+      Math.random(),
+      Math.random(),
+      Math.random(),
+      1,
+      Math.random(),
+      Math.random(),
+      Math.random(),
+      1,
+      Math.random(),
+      Math.random(),
+      Math.random(),
+      1,
+      Math.random(),
+      Math.random(),
+      Math.random(),
+      1,
+      Math.random(),
+      Math.random(),
+      Math.random(),
+      1,
+      Math.random(),
+      Math.random(),
+      Math.random(),
+      1,
+    ]),
     gl.STATIC_DRAW
   );
 }
